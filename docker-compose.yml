@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: postgres
+
+    environment:
+      POSTGRES_DB: book-api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+
+    ports:
+      - "5432:5432"
