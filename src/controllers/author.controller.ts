@@ -1,5 +1,6 @@
 const booksDb = require('../index')
 const authorTable = require('../models/author.model')
+const { eq } = require('drizzle-orm')
 import type { Request, Response } from 'express'
 
 const getAllUsers = async (req: Request, res: Response) => {
@@ -23,4 +24,16 @@ const createUser = async (req: Request, res: Response) => {
     })
 }
 
-module.exports = { getAllUsers, createUser }
+const getAuthorById = async (req: Request, res: Response) => {
+    const authorId = req.params.uuid
+
+    const author = await booksDb
+        .select()
+        .from(authorTable)
+        .where(eq(authorTable.id, authorId))
+        .limit(1)
+
+    res.status(200).json({ message: 'successfull', data: author })
+}
+
+module.exports = { getAllUsers, createUser, getAuthorById }
