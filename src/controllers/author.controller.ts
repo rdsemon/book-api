@@ -1,5 +1,6 @@
 const booksDb = require('../index')
 const authorTable = require('../models/author.model')
+const bookTable = require('../models/books.model')
 const { eq } = require('drizzle-orm')
 import type { Request, Response } from 'express'
 
@@ -30,8 +31,8 @@ const getAuthorById = async (req: Request, res: Response) => {
     const author = await booksDb
         .select()
         .from(authorTable)
+        .leftJoin(bookTable, eq(authorTable.id, bookTable.authorId))
         .where(eq(authorTable.id, authorId))
-        .limit(1)
 
     res.status(200).json({ message: 'successfull', data: author })
 }
