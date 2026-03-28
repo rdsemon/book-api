@@ -1,6 +1,6 @@
 const booksDB = require('../index')
 const booksTable = require('../models/books.model')
-const authorTable = require('../models/author.model')
+const usersTable = require('../models/users.model')
 const { eq } = require('drizzle-orm')
 const { sql } = require('drizzle-orm')
 import type { Request, Response } from 'express'
@@ -45,7 +45,7 @@ const getBookById = async (req: Request, res: Response) => {
         .from(booksTable)
         .where(eq(booksTable.id, bookId))
         .limit(1)
-        .leftJoin(authorTable, eq(authorTable.id, booksTable.authorId))
+        .leftJoin(usersTable, eq(usersTable.id, booksTable.authorId))
     res.status(200).json({ message: 'successfull', data: book })
 }
 

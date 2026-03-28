@@ -1,60 +1,60 @@
 const booksDb = require('../index')
-const authorTable = require('../models/author.model')
+const usersTable = require('../models/users.model')
 const bookTable = require('../models/books.model')
 const { eq } = require('drizzle-orm')
 import type { Request, Response } from 'express'
 
-const getAllAuthor = async (req: Request, res: Response) => {
-    const authors = await booksDb.select().from(authorTable)
+const getAllUser = async (req: Request, res: Response) => {
+    const usres = await booksDb.select().from(usersTable)
 
-    res.status(200).json({ message: 'successfull', data: authors })
+    res.status(200).json({ message: 'successfull', data: usres })
 }
 
-const createAuthor = async (req: Request, res: Response) => {
-    const authorData = {
+const createUser = async (req: Request, res: Response) => {
+    const userData = {
         ...req.body,
     }
 
-    const [author] = await booksDb
-        .insert(authorTable)
-        .values(authorData)
-        .returning({ insertedId: authorTable.id })
+    const [user] = await booksDb
+        .insert(usersTable)
+        .values(userData)
+        .returning({ insertedId: usersTable.id })
 
     res.status(201).json({
-        message: `author is created id:${author.insertedId}`,
+        message: `user is created id:${user.insertedId}`,
     })
 }
 
-const getAuthorById = async (req: Request, res: Response) => {
-    const authorId = req.params.uuid
-    const author = await booksDb
+const getUserById = async (req: Request, res: Response) => {
+    const userId = req.params.uuid
+    const user = await booksDb
         .select()
-        .from(authorTable)
-        .leftJoin(bookTable, eq(authorTable.id, bookTable.authorId))
-        .where(eq(authorTable.id, authorId))
+        .from(usersTable)
+        .leftJoin(bookTable, eq(usersTable.id, bookTable.userId))
+        .where(eq(usersTable.id, userId))
 
-    res.status(200).json({ message: 'successfull', data: author })
+    res.status(200).json({ message: 'successfull', data: user })
 }
 
-const deleteAuthor = async (req: Request, res: Response) => {
-    const authorId = req.params.uuid
+const deleteUser = async (req: Request, res: Response) => {
+    const userId = req.params.uuid
 
-    const [author] = await booksDb
+    const [user] = await booksDb
         .select({
-            authorId: authorTable.id,
+            userId: usersTable.id,
         })
-        .from(authorTable)
-        .where(eq(authorTable.id, authorId))
+        .from(usersTable)
+        .where(eq(usersTable.id, userId))
 
-    if (!author) {
-        return res.status(404).json({ error: 'author dose not exsist' })
+    if (!user) {
+        return res.status(404).json({ error: 'user dose not exsist' })
     }
 
-    await booksDb.delete(authorTable).where(eq(authorTable.id, authorId))
+    await booksDb.delete(usersTable).where(eq(usersTable.id, userId))
 
     res.status(200).json({
-        message: `account deleting successfull for id ${authorId}`,
+        message: `account deleting successfull for id ${userId}`,
     })
 }
 
-module.exports = { getAllAuthor, createAuthor, getAuthorById, deleteAuthor }
+module.exports = { getAllUser, createUser, getUserById, deleteUser }
