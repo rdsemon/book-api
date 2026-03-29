@@ -1,6 +1,6 @@
 const express = require('express')
 const bookRouter = require('./routes/book.routes')
-const userRouter = require('./routes/author.routes')
+const userRouter = require('./routes/user.routes')
 const app = express()
 
 app.use(express.json())
