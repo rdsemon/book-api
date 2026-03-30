@@ -1,11 +1,13 @@
 const booksDB = require('../index')
 const booksTable = require('../models/books.model')
 const usersTable = require('../models/users.model')
+const AppError = require('../utils/AppError')
+const catchAsyncHandler = require('../utils/catchAsyncHandler')
 const { eq } = require('drizzle-orm')
 const { sql } = require('drizzle-orm')
-import type { Request, Response } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 
-const getallBooks = async (req: Request, res: Response) => {
+const getallBooks = catchAsyncHandler(async (req: Request, res: Response) => {
     const search = req.params.search as string
 
     let books
@@ -22,9 +24,9 @@ const getallBooks = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({ message: 'Action successfull', data: books })
-}
+})
 
-const createBook = async (req: Request, res: Response) => {
+const createBook = catchAsyncHandler(async (req: Request, res: Response) => {
     const bookData = {
         ...req.body,
     }
@@ -35,9 +37,9 @@ const createBook = async (req: Request, res: Response) => {
         .returning({ bookId: booksTable.id })
 
     res.status(201).json({ message: `book is crated id: ${book.bookId}` })
-}
+})
 
-const getBookById = async (req: Request, res: Response) => {
+const getBookById = catchAsyncHandler(async (req: Request, res: Response) => {
     const bookId = req.params.uuid
 
     const book = await booksDB
@@ -47,9 +49,9 @@ const getBookById = async (req: Request, res: Response) => {
         .limit(1)
         .leftJoin(usersTable, eq(usersTable.id, booksTable.authorId))
     res.status(200).json({ message: 'successfull', data: book })
-}
+})
 
-const updateBook = async (req: Request, res: Response) => {
+const updateBook = catchAsyncHandler(async (req: Request, res: Response) => {
     const { price } = req.body
     const { uuid } = req.params
 
@@ -61,14 +63,14 @@ const updateBook = async (req: Request, res: Response) => {
         .where(eq(booksTable.id, uuid))
 
     res.status(201).json({ message: 'Book is updated' })
-}
+})
 
-const deleteBook = async (req: Request, res: Response) => {
+const deleteBook = catchAsyncHandler(async (req: Request, res: Response) => {
     const { uuid } = req.params
     await booksDB.delete(booksTable).where(eq(booksTable.id, uuid))
 
     res.status(200).json({ message: 'Book is deleted' })
-}
+})
 
 module.exports = {
     createBook,
