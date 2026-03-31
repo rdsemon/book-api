@@ -1,7 +1,8 @@
 const booksModel = require('../models/books.model')
-const usersModel = require('../models/users.model')
+const { usersTable, roleEnum } = require('../models/users.model')
 
 module.exports = {
     booksModel,
-    usersModel,
+    usersTable,
+    roleEnum,
 }
