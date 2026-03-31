@@ -10,7 +10,7 @@ const {
 
 const { sql } = require('drizzle-orm')
 
-const userTable = require('./users.model')
+const { usersTable } = require('./users.model')
 
 const booksTable = pgTable(
     'books',
@@ -21,7 +21,7 @@ const booksTable = pgTable(
         price: integer('price').notNull(),
         userId: uuid('user_id')
             .notNull()
-            .references(() => userTable.id, { onDelete: 'cascade' }),
+            .references(() => usersTable.id, { onDelete: 'cascade' }),
 
         createdAt: timestamp('created_at').defaultNow(),
     },
