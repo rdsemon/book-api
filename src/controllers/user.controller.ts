@@ -1,5 +1,5 @@
 const booksDb = require('../index')
-const usersTable = require('../models/users.model')
+const { usersTable } = require('../models/users.model')
 const bookTable = require('../models/books.model')
 const AppError = require('../utils/AppError')
 const catchAsyncHandler = require('../utils/catchAsyncHandler')
