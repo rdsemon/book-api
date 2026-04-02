@@ -1,21 +1,23 @@
 const { usersTable } = require('../models/users.model')
 const bookDb = require('../index')
-const bcrypt = require('bcrypt')
 const catchAsyncHandler = require('../utils/catchAsyncHandler')
 const AppError = require('../utils/AppError')
 const { eq } = require('drizzle-orm')
+const {
+    createHashPassword,
+    checkPassword,
+} = require('../utils/validatePassword')
+
 import type { Request, Response, NextFunction } from 'express'
 
 const singUp = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const saltRounds = 10
-
         const { name, email, password, role } = req.body
 
         if (!name || !email || !password)
             return next(new AppError('some information is missing ', 404))
 
-        const hashPassword = await bcrypt.hash(password, saltRounds)
+        const hashPassword = await createHashPassword(password)
 
         const userData = {
             name,
@@ -50,11 +52,11 @@ const login = catchAsyncHandler(
             .from(usersTable)
             .where(eq(usersTable.email, email))
 
-        if (user.length === 0) return next(new AppError('user not found', 401))
+        if (!user.length) return next(new AppError('user not found', 401))
 
         const dbPass = user[0].password
 
-        const validLogin = await bcrypt.compare(password, dbPass)
+        const validLogin = await checkPassword(password, dbPass)
 
         if (!validLogin)
             return next(new AppError('Wrong email or password', 401))
