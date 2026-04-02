@@ -3,10 +3,13 @@ const bookDb = require('../index')
 const catchAsyncHandler = require('../utils/catchAsyncHandler')
 const AppError = require('../utils/AppError')
 const { eq } = require('drizzle-orm')
+
 const {
     createHashPassword,
     checkPassword,
 } = require('../utils/validatePassword')
+
+const { checkLoginInputs } = require('../validators/auth.validator')
 
 import type { Request, Response, NextFunction } from 'express'
 
@@ -44,8 +47,10 @@ const login = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body
 
-        if (!email || !password)
-            return next(new AppError('email or password is missing', 404))
+        const valiationMessage = checkLoginInputs(email, password)
+        if (valiationMessage) {
+            return next(new AppError(valiationMessage, 401))
+        }
 
         const user = await bookDb
             .select({ password: usersTable.password })
