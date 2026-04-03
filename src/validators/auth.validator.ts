@@ -1,19 +1,25 @@
-const { z, ZodError } = require('zod')
-const { LoginSchema } = require('./auth.schema')
+const {
+    singUpSchema,
+    LoginSchema,
+} = require('../validators/zodSchema/auth.schema')
+const formatZodError = require('../utils/formatZodError')
 
-const checkLoginInputs = (email: string, password: string) => {
+const validateSingUpInputs = (obj: object) => {
     try {
-        LoginSchema.parse({ email, password })
+        singUpSchema.parse({ ...obj })
+        return { isValid: true, error: null }
     } catch (err: any) {
-        if (err instanceof ZodError) {
-            //@ts-expect-error use it beccause mgs give an error
-            const messages = err.issues.map((mgs) => mgs.message)
-            const formatMessage = messages.join(' , ')
-            return formatMessage
-        }
+        return { isValid: false, error: formatZodError(err) }
     }
 }
 
-//
+const validateLoginInputs = (email: string, password: string) => {
+    try {
+        LoginSchema.parse({ email, password })
+        return { isValid: true, error: null }
+    } catch (err: any) {
+        return { isValid: false, error: formatZodError(err) }
+    }
+}
 
-module.exports = { checkLoginInputs }
+module.exports = { validateSingUpInputs, validateLoginInputs }
