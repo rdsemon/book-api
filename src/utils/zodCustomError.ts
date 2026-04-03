@@ -3,7 +3,7 @@ const customErrors = (fieldName: string) => {
         error: (iss: any) =>
             iss.input === undefined
                 ? `${fieldName} is required`
-                : `invalid input: require string but given ${typeof iss.input}`,
+                : `invalid input: require string but given ${typeof iss.input} in ${fieldName} field`,
     }
     return customMessage
 }
