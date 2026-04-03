@@ -1,24 +1,27 @@
-const { usersTable } = require('../models/users.model')
-const bookDb = require('../index')
+import type { Request, Response, NextFunction } from 'express'
 const catchAsyncHandler = require('../utils/catchAsyncHandler')
+const { usersTable } = require('../models/users.model')
 const AppError = require('../utils/AppError')
 const { eq } = require('drizzle-orm')
+const bookDb = require('../index')
 
 const {
     createHashPassword,
     checkPassword,
 } = require('../utils/validatePassword')
 
-const { checkLoginInputs } = require('../validators/auth.validator')
-
-import type { Request, Response, NextFunction } from 'express'
+const {
+    validateLoginInputs,
+    validateSingUpInputs,
+} = require('../validators/auth.validator')
 
 const singUp = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const { name, email, password, role } = req.body
+        //validate input with zod
+        const { isValid, error } = validateSingUpInputs(req.body)
+        if (!isValid) return next(new AppError(error, 404))
 
-        if (!name || !email || !password)
-            return next(new AppError('some information is missing ', 404))
+        const { name, email, password, role } = req.body
 
         const hashPassword = await createHashPassword(password)
 
@@ -47,9 +50,11 @@ const login = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body
 
-        const valiationMessage = checkLoginInputs(email, password)
-        if (valiationMessage) {
-            return next(new AppError(valiationMessage, 401))
+        //validate input with zod
+
+        const { isValid, error } = validateLoginInputs(email, password)
+        if (!isValid) {
+            return next(new AppError(error, 401))
         }
 
         const user = await bookDb
