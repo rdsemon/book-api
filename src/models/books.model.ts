@@ -19,7 +19,7 @@ const booksTable = pgTable(
         title: varchar('title', { length: 160 }).notNull(),
         description: text('description'),
         price: integer('price').notNull(),
-        userId: uuid('user_id')
+        userId: uuid('userId')
             .notNull()
             .references(() => usersTable.id, { onDelete: 'cascade' }),
 
