@@ -14,7 +14,6 @@ const usersTable = pgTable('users', {
     email: varchar('email', { length: 200 }).notNull().unique(),
     password: varchar('password', { length: 255 }).notNull(),
     role: roleEnum('role').notNull().default('user'),
-
     createdAt: timestamp('created_at').defaultNow(),
 })
 
