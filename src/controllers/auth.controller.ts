@@ -10,17 +10,8 @@ const {
     checkPassword,
 } = require('../utils/validatePassword')
 
-const {
-    validateLoginInputs,
-    validateSingUpInputs,
-} = require('../validators/auth.validator')
-
 const singUp = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        //validate input with zod
-        const { isValid, error } = validateSingUpInputs(req.body)
-        if (!isValid) return next(new AppError(error, 404))
-
         const { name, email, password, role } = req.body
 
         const hashPassword = await createHashPassword(password)
@@ -49,13 +40,6 @@ const singUp = catchAsyncHandler(
 const login = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body
-
-        //validate input with zod
-
-        const { isValid, error } = validateLoginInputs(email, password)
-        if (!isValid) {
-            return next(new AppError(error, 401))
-        }
 
         const user = await bookDb
             .select({ password: usersTable.password })
