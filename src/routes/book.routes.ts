@@ -4,8 +4,10 @@ const booksController = require('../controllers/book.controller')
 const validate = require('../middlewares/validate')
 const {
     createBookSchema,
-    getBookByIdSchema,
-} = require('../validators/zodSchema/book.schema')
+    updateBookSchema,
+} = require('../zodSchema/book.schema')
+
+const uuidSchema = require('../zodSchema/uuid.schema')
 const { createBook, getallBooks, updateBook, deleteBook, getBookById } =
     booksController
 
@@ -15,8 +17,8 @@ router
     .post(validate(createBookSchema), createBook)
 router
     .route('/book/:uuid')
-    .get(validate(getBookByIdSchema), getBookById)
-    .patch(updateBook)
-    .delete(deleteBook)
+    .get(validate(uuidSchema), getBookById)
+    .patch(validate(updateBookSchema), updateBook)
+    .delete(validate(uuidSchema), deleteBook)
 
 module.exports = router
