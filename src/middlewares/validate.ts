@@ -10,8 +10,6 @@ const validate =
             params: req.params,
         })
 
-        console.log(result)
-
         if (!result.success) {
             return next(new AppError(formatZodError(result.error), 400))
         }
