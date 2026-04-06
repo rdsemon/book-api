@@ -1,15 +1,15 @@
-const booksDB = require('../index')
-const booksTable = require('../models/books.model')
-const usersTable = require('../models/users.model')
-const AppError = require('../utils/AppError')
 const catchAsyncHandler = require('../utils/catchAsyncHandler')
+const AppError = require('../utils/AppError')
+const booksTable = require('../models/books.model')
+const { usersTable } = require('../models/users.model')
 const { eq } = require('drizzle-orm')
 const { sql } = require('drizzle-orm')
+const booksDB = require('../index')
 import type { Request, Response, NextFunction } from 'express'
 
 const getallBooks = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const search = req.params.search as string
+        const search = req.query.search as string
 
         let books
 
@@ -32,8 +32,12 @@ const getallBooks = catchAsyncHandler(
 
 const createBook = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
+        const { title, description, price, userId } = req.body
         const bookData = {
-            ...req.body,
+            title,
+            description,
+            price,
+            userId,
         }
 
         const [book] = await booksDB
@@ -41,7 +45,9 @@ const createBook = catchAsyncHandler(
             .values(bookData)
             .returning({ bookId: booksTable.id })
 
-        res.status(201).json({ message: `book is crated id: ${book.bookId}` })
+        res.status(201).json({
+            message: `book is crated id: ${book.bookId}`,
+        })
     }
 )
 
@@ -49,16 +55,14 @@ const getBookById = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const bookId = req.params.uuid
 
-        if (!bookId) return next(new AppError('Book id is required', 404))
-
         const book = await booksDB
             .select()
             .from(booksTable)
             .where(eq(booksTable.id, bookId))
-            .limit(1)
-            .leftJoin(usersTable, eq(usersTable.id, booksTable.authorId))
+            .leftJoin(usersTable, eq(usersTable.id, booksTable.userId))
 
-        if (!book) return next(new AppError('Book is not found', 404))
+        if (book.length === 0)
+            return next(new AppError('Book is not found', 404))
 
         res.status(200).json({ message: 'successfull', data: book })
     }
@@ -67,18 +71,15 @@ const getBookById = catchAsyncHandler(
 const updateBook = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const { uuid } = req.params
-        if (!uuid) return next(new AppError('id is required', 400))
+        const updateValues = req.body
 
-        const updates = req.body
-        if (!updates || Object.keys(updates).length === 0) {
-            return next(new AppError('No fields provided to update', 400))
-        }
-        await booksDB
+        const [book] = await booksDB
             .update(booksTable)
-            .set(updates)
+            .set(updateValues)
             .where(eq(booksTable.id, uuid))
+            .returning({ bookId: booksTable.id })
 
-        res.status(201).json({ message: 'Book is updated' })
+        res.status(201).json({ message: `Book is updated ${book.bookId}` })
     }
 )
 
@@ -86,13 +87,13 @@ const deleteBook = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const { uuid } = req.params
 
-        if (!uuid) return next(new AppError('Id is required', 404))
-
         const book = await booksDB
+
             .delete(booksTable)
             .where(eq(booksTable.id, uuid))
 
-        if (!book) return next(new AppError('Book is not found', 404))
+        if (book.length === 0)
+            return next(new AppError('Book is not found', 404))
 
         res.status(200).json({ message: 'Book is deleted' })
     }
