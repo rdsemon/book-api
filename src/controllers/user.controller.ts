@@ -14,38 +14,9 @@ const getAllUser = catchAsyncHandler(
     }
 )
 
-const createUser = catchAsyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-        const { name, email } = req.body
-
-        if (!name || !email)
-            return next(new AppError('name or email is missing', 404))
-
-        const userData = {
-            name,
-            email,
-        }
-        const [user] = await booksDb
-            .insert(usersTable)
-            .values(userData)
-            .returning({ insertedId: usersTable.id })
-
-        if (!user.insertedId)
-            return next(new AppError('account creation is fail', 404))
-
-        res.status(201).json({
-            message: `user is created id:${user.insertedId}`,
-        })
-    }
-)
-
 const getUserById = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const userId = req.params.uuid
-
-        if (!userId) {
-            return next(new AppError('Id is required', 404))
-        }
 
         const user = await booksDb
             .select()
@@ -63,8 +34,6 @@ const getUserById = catchAsyncHandler(
 const deleteUser = catchAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const userId = req.params.uuid
-
-        if (!userId) return next(new AppError('id is required', 404))
 
         const [user] = await booksDb
             .select({
@@ -85,4 +54,4 @@ const deleteUser = catchAsyncHandler(
     }
 )
 
-module.exports = { getAllUser, createUser, getUserById, deleteUser }
+module.exports = { getAllUser, getUserById, deleteUser }
