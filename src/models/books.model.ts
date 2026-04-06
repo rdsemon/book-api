@@ -30,6 +30,7 @@ const booksTable = pgTable(
             'gin',
             sql`to_tsvector('english', ${table.title})`
         ),
+        index('user_id_index').on(table.userId),
     ]
 )
 
