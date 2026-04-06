@@ -24,6 +24,7 @@
         "noUncheckedIndexedAccess": true,
         "exactOptionalPropertyTypes": true,
         "forceConsistentCasingInFileNames": true,
+        "typeRoots": ["./node_modules/@types", "./src/types"],
 
         // Style Options
         // "noImplicitReturns": true,
@@ -39,9 +40,10 @@
         "verbatimModuleSyntax": true,
         "isolatedModules": true,
         "noUncheckedSideEffectImports": true,
+        "esModuleInterop": true,
         "moduleDetection": "force",
         "skipLibCheck": true
     },
-    "include": ["src"],
+    "include": ["src/**/*", "src/types/express.d.ts"],
     "exclude": ["node_modules"]
 }
