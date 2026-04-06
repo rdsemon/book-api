@@ -10,11 +10,12 @@ const {
 const uuidSchema = require('../zodSchema/uuid.schema')
 const { createBook, getallBooks, updateBook, deleteBook, getBookById } =
     booksController
+const { protect } = require('../controllers/auth.controller')
 
 router
     .route('/book')
     .get(getallBooks)
-    .post(validate(createBookSchema), createBook)
+    .post(validate(createBookSchema), protect, createBook)
 router
     .route('/book/:uuid')
     .get(validate(uuidSchema), getBookById)
