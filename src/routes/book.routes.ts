@@ -10,16 +10,31 @@ const {
 const uuidSchema = require('../zodSchema/uuid.schema')
 const { createBook, getallBooks, updateBook, deleteBook, getBookById } =
     booksController
-const { protect } = require('../controllers/auth.controller')
+const { protect, restictedTo } = require('../controllers/auth.controller')
 
 router
     .route('/book')
     .get(getallBooks)
-    .post(validate(createBookSchema), protect, createBook)
+    .post(
+        validate(createBookSchema),
+        protect,
+        restictedTo('author'),
+        createBook
+    )
 router
     .route('/book/:uuid')
     .get(validate(uuidSchema), getBookById)
-    .patch(validate(updateBookSchema), updateBook)
-    .delete(validate(uuidSchema), deleteBook)
+    .patch(
+        validate(updateBookSchema),
+        protect,
+        restictedTo('author', 'admin'),
+        updateBook
+    )
+    .delete(
+        validate(uuidSchema),
+        protect,
+        restictedTo('author', 'admin'),
+        deleteBook
+    )
 
 module.exports = router
