@@ -7,11 +7,11 @@
 
         // Environment Settings
         // See also https://aka.ms/tsconfig/module
-        "module": "NodeNext",
-        "target": "esnext",
+        "module": "CommonJS",
+        "target": "ES2020",
 
         // For nodejs:
-        "lib": ["esnext"],
+        "lib": ["ES2020"],
         "types": ["node"],
         // and npm install -D @types/node
 
@@ -24,7 +24,6 @@
         "noUncheckedIndexedAccess": true,
         "exactOptionalPropertyTypes": true,
         "forceConsistentCasingInFileNames": true,
-        "typeRoots": ["./node_modules/@types", "./src/types"],
 
         // Style Options
         // "noImplicitReturns": true,
@@ -36,14 +35,12 @@
 
         // Recommended Options
         "strict": true,
-        "jsx": "react-jsx",
-        "verbatimModuleSyntax": true,
         "isolatedModules": true,
         "noUncheckedSideEffectImports": true,
         "esModuleInterop": true,
         "moduleDetection": "force",
         "skipLibCheck": true
     },
-    "include": ["src/**/*", "src/types/express.d.ts"],
+    "include": ["src"],
     "exclude": ["node_modules"]
 }
