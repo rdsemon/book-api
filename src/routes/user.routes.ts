@@ -5,11 +5,17 @@ const uuidSchema = require('../zodSchema/uuid.schema')
 const router = express.Router()
 
 const { getAllUser, getUserById, deleteUser } = userController
+const { protect, restictedTo } = require('../controllers/auth.controller')
 
-router.route('/user').get(getAllUser)
+router.route('/user').get(protect, restictedTo('admin'), getAllUser)
 router
     .route('/user/:uuid')
-    .get(validate(uuidSchema), getUserById)
-    .delete(validate(uuidSchema), deleteUser)
+    .get(validate(uuidSchema), protect, getUserById)
+    .delete(
+        validate(uuidSchema),
+        protect,
+        restictedTo('author', 'admin'),
+        deleteUser
+    )
 
 module.exports = router
