@@ -18,7 +18,7 @@ router
     .post(
         validate(createBookSchema),
         protect,
-        restictedTo('author'),
+        restictedTo('author', 'user'),
         createBook
     )
 router
