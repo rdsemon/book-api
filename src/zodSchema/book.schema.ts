@@ -4,7 +4,7 @@ const customError = require('../utils/zodCustomError')
 const bookSchema = z.object({
     title: z
         .string(customError('title'))
-        .min(10, 'Title can not be empty')
+        .min(1, 'Title can not be empty')
         .trim(),
     description: z.string(customError('description')).trim().optional(),
     price: z
