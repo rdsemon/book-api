@@ -12,29 +12,33 @@ const { createBook, getallBooks, updateBook, deleteBook, getBookById } =
     booksController
 const { protect, restictedTo } = require('../controllers/auth.controller')
 
-router
-    .route('/book')
-    .get(getallBooks)
-    .post(
-        validate(createBookSchema),
-        protect,
-        restictedTo('author', 'user'),
-        createBook
-    )
+//middleware chaining
+
+const createBookMiddleware = [
+    validate(createBookSchema),
+    protect,
+    restictedTo('author', 'user'),
+]
+
+const updateBookMiddleware = [
+    validate(updateBookSchema),
+    protect,
+    restictedTo('author', 'user'),
+]
+
+const deleteBookMiddleware = [
+    validate(uuidSchema),
+    protect,
+    restictedTo('author', 'admin'),
+]
+
+//routes
+
+router.route('/book').get(getallBooks).post(createBookMiddleware, createBook)
 router
     .route('/book/:uuid')
     .get(validate(uuidSchema), getBookById)
-    .patch(
-        validate(updateBookSchema),
-        protect,
-        restictedTo('author', 'admin'),
-        updateBook
-    )
-    .delete(
-        validate(uuidSchema),
-        protect,
-        restictedTo('author', 'admin'),
-        deleteBook
-    )
+    .patch(updateBookMiddleware, updateBook)
+    .delete(deleteBookMiddleware, deleteBook)
 
 module.exports = router
