@@ -7,6 +7,12 @@ declare global {
     namespace Express {
         interface Request {
             user?: UserType
+            rateLimit?: {
+                limit: number
+                current: number
+                remaining: number
+                resetTime?: Date
+            }
         }
     }
 }
