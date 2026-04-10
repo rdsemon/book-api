@@ -4,8 +4,16 @@ const AppError = require('../utils/AppError')
 
 import type { Request, Response, NextFunction } from 'express'
 
-const handleDuplicateKeyError = () => {
-    const message = `Duplicate field value violates unique constraint`
+const handleDuplicateKeyError = (err: any) => {
+    const detail = err?.cause?.detail || err?.detail || ''
+    const match = detail.match(/\((.*?)\)=\((.*?)\)/)
+
+    let message = 'Duplicate field value violates unique constraint'
+
+    if (match) {
+        message = `The ${match[1]} '${match[2]}' is already taken.`
+    }
+
     return new AppError(message, 400)
 }
 
@@ -25,20 +33,24 @@ const handleJWTExpiredError = () =>
 const handleJWTInvalidError = () =>
     new AppError('Invalid token. Please login again.', 401)
 
-const sendErrorDev = (err: any, res: Response) => {
+const sendErrorDev = (err: any, res: Response, req: Request) => {
+    const remaining = req.rateLimit ? req.rateLimit.remaining + 1 : 5
     res.status(err.statusCode || 500).json({
         status: err.status || 'error',
         message: err.message,
         stack: err.stack,
         error: err,
+        attemptsLeft: remaining,
     })
 }
 
-const sendErrorProd = (err: any, res: Response) => {
+const sendErrorProd = (err: any, res: Response, req: Request) => {
+    const remaining = req.rateLimit ? req.rateLimit.remaining + 1 : 5
     if (err.isOperational) {
         return res.status(err.statusCode || 500).json({
             status: err.status,
             message: err.message,
+            attemptsLeft: remaining,
         })
     }
 
@@ -60,13 +72,13 @@ const globalError = (
     err.status = err.status || 'error'
 
     if (process.env.NODE_ENV === 'development') {
-        sendErrorDev(err, res)
+        sendErrorDev(err, res, req)
     } else if (process.env.NODE_ENV === 'production') {
         const dbCode = err.cause?.code || err.code
         let error = err
         //for catch error which come form drizzle database
         if (dbCode === '23505') {
-            error = handleDuplicateKeyError()
+            error = handleDuplicateKeyError(error)
         } else if (dbCode === '23503') {
             error = handleForeignKeyError()
         } else if (dbCode === '23502') {
@@ -87,7 +99,7 @@ const globalError = (
             error = handleJWTInvalidError()
         }
 
-        sendErrorProd(error, res)
+        sendErrorProd(error, res, req)
     }
 }
 
