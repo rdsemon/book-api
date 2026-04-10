@@ -1,7 +1,7 @@
 const { z } = require('zod')
 const customErrors = require('../utils/zodCustomError')
 
-const singUpSchema = z.object({
+const signUpSchema = z.object({
     body: z
         .object({
             name: z
@@ -36,4 +36,4 @@ const LoginSchema = z.object({
         }),
 })
 
-module.exports = { singUpSchema, LoginSchema }
+module.exports = { signUpSchema, LoginSchema }
