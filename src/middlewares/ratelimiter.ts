@@ -17,6 +17,7 @@ const authLimiter = rateLimit({
     max: 5,
     standardHeaders: true,
     legacyHeaders: false,
+    skipFailedRequests: false,
 
     handler: (
         req: Request,
@@ -24,12 +25,10 @@ const authLimiter = rateLimit({
         next: NextFunction,
         options: any
     ) => {
-        const remaining = req.rateLimit?.remaining ?? 0
-
         res.status(options.statusCode).json({
             status: 'fail',
             message: `Too many attempts. Try again later.`,
-            attemptsLeft: remaining,
+            attemptsLeft: 0,
         })
     },
 })
