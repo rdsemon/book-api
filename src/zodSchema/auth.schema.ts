@@ -4,7 +4,12 @@ const customErrors = require('../utils/zodCustomError')
 const singUpSchema = z.object({
     body: z
         .object({
-            name: z.string(customErrors('name')).min(1, 'Name is required'),
+            name: z
+                .string(customErrors('name'))
+                .min(1, 'Name is required')
+                .refine((val: string) => !/[<>]/.test(val), {
+                    message: 'Invalid characters are not allowed',
+                }),
             email: z
                 .string({ required_error: 'Email is required' })
                 .trim()
